@@ -18,6 +18,46 @@ int seuilLuminosite = 400;
 const int ldrPin = A0;     // Capteur de lumière (LDR) sur la broche analogique A0
 const int ledPin_lum = 13; // LED (éclairage) sur la broche numérique 13
 
+unsigned long lastTempCheck = 0;
+const unsigned long TEMP_INTERVAL = 2000; // 2 seconds
+unsigned long lastLightCheck = 0;
+const unsigned long LIGHT_INTERVAL = 1000; // ms
+
+void handleTemperature()
+{
+  if (millis() - lastTempCheck >= TEMP_INTERVAL)
+  {
+    lastTempCheck = millis();
+
+    float temp = dht.readTemperature();
+
+    if (!isnan(temp))
+    {
+      if (temp >= TEMP_HIGH)
+        digitalWrite(MOTORPIN, HIGH);
+      else
+        digitalWrite(MOTORPIN, LOW);
+    }
+  }
+}
+
+void handleLight()
+{
+  if (millis() - lastLightCheck >= LIGHT_INTERVAL)
+  {
+    lastLightCheck = millis();
+
+    int valeurLDR = analogRead(ldrPin);
+
+    if (valeurLDR < seuilLuminosite)
+      digitalWrite(ledPin_lum, HIGH);
+    else
+      digitalWrite(ledPin_lum, LOW);
+  }
+}
+
+
+
 char enteredCode[5];
 int index = 0;
 struct Student
@@ -56,7 +96,7 @@ bool idleScreenShown = false;
 void setup()
 {
   Serial.begin(9600);
-  Serial.println("SYSTEM_READY");
+  Serial.println(F("SYSTEM_READY"));
   displayscreen();
   myservo.attach(9); // Servo motor connection
   lcd.begin(16, 2);
@@ -73,29 +113,8 @@ void setup()
 // - gère l'accès et la présence
 void loop()
 {
-  // 1. Lecture de la lumière
-  int valeurLDR = analogRead(ldrPin);
-
-  // 2. Logique d'allumage
-  // Si la valeur est basse, cela signifie qu'il fait sombre
-  if (valeurLDR < seuilLuminosite)
-  {
-    digitalWrite(ledPin_lum, HIGH); // Allume la LED
-  }
-  else
-  {
-    digitalWrite(ledPin_lum, LOW); // Éteint la LED
-  }
-
-  float Temp = dht.readTemperature();
-  if (Temp >= TEMP_HIGH)
-  {
-    digitalWrite(MOTORPIN, HIGH);
-  }
-  else
-  {
-    digitalWrite(MOTORPIN, LOW);
-  }
+  handleLight();
+  handleTemperature();
 
   char key = keypad.getKey();
   if (key == NO_KEY)
@@ -123,7 +142,7 @@ void loop()
     {
       lcd.clear();
       lcd.setCursor(0, 0);
-      lcd.print("PASSWORD:");
+      lcd.print(F("PASSWORD:"));
     }
 
     enteredCode[index++] = key;
@@ -188,7 +207,7 @@ void welcomeStudent(const char *name)
 {
   lcd.clear();
   lcd.setCursor(5, 0);
-  lcd.print("WELCOME");
+  lcd.print(F("WELCOME"));
   lcd.setCursor(5, 1);
   lcd.print(name);
   Serial.print(name);
@@ -206,9 +225,9 @@ void unlockdoor()
   lcd.setCursor(0, 0);
   lcd.println(" ");
   lcd.setCursor(1, 0);
-  lcd.print("Access Granted");
+  lcd.print(F("Access Granted"));
   lcd.setCursor(4, 1);
-  lcd.println("WELCOME!!");
+  lcd.println(F("WELCOME!!"));
   lcd.setCursor(15, 1);
   lcd.println(" ");
   lcd.setCursor(16, 1);
@@ -242,16 +261,16 @@ void incorrect()
   delay(500);
   lcd.clear();
   lcd.setCursor(1, 0);
-  lcd.print("CODE");
+  lcd.print(F("CODE"));
   lcd.setCursor(6, 0);
-  lcd.print("INCORRECT");
+  lcd.print(F("INCORRECT"));
   lcd.setCursor(15, 1);
   lcd.println(" ");
   lcd.setCursor(4, 1);
-  lcd.println("GET AWAY!!!");
+  lcd.println(F("GET AWAY!!!"));
   lcd.setCursor(13, 1);
   lcd.println(" ");
-  Serial.println("CODE INCORRECT YOU ARE UNAUTHORIZED");
+  Serial.println(F("CODE INCORRECT YOU ARE UNAUTHORIZED"));
   delay(3000);
   lcd.clear();
   displayscreen();
@@ -271,9 +290,9 @@ void clearscreen()
 void displayscreen()
 {
   lcd.setCursor(0, 0);
-  lcd.println("*ENTER THE CODE*");
+  lcd.println(F("*ENTER THE CODE*"));
   lcd.setCursor(1, 1);
-  lcd.println("TO OPEN DOOR!!");
+  lcd.println(F("TO OPEN DOOR!!"));
 }
 //--------------Function 5 - Count down------------------//
 void counterbeep()
@@ -288,43 +307,43 @@ void counterbeep()
   lcd.println(" ");
   lcd.setCursor(2, 0);
   delay(200);
-  lcd.println("GET IN WITHIN:::");
+  lcd.println(F("GET IN WITHIN:::"));
 
   lcd.setCursor(4, 1);
   lcd.print("5");
   delay(200);
   lcd.clear();
   lcd.setCursor(2, 0);
-  lcd.println("GET IN WITHIN:");
+  lcd.println(F("GET IN WITHIN:"));
   delay(1000);
   lcd.setCursor(2, 0);
-  lcd.println("GET IN WITHIN:");
+  lcd.println(F("GET IN WITHIN:"));
   lcd.setCursor(4, 1); // 2
   lcd.print("4");
   delay(100);
   lcd.clear();
   lcd.setCursor(2, 0);
-  lcd.println("GET IN WITHIN:");
+  lcd.println(F("GET IN WITHIN:"));
   delay(1000);
 
   lcd.setCursor(2, 0);
-  lcd.println("GET IN WITHIN:");
+  lcd.println(F("GET IN WITHIN:"));
   lcd.setCursor(4, 1);
   lcd.print("3");
   delay(100);
   lcd.clear();
   lcd.setCursor(2, 0);
-  lcd.println("GET IN WITHIN:");
+  lcd.println(F("GET IN WITHIN:"));
   delay(1000);
 
   lcd.setCursor(2, 0);
-  lcd.println("GET IN WITHIN:");
+  lcd.println(F("GET IN WITHIN:"));
   lcd.setCursor(4, 1);
   lcd.print("2");
   delay(100);
   lcd.clear();
   lcd.setCursor(2, 0);
-  lcd.println("GET IN WITHIN:");
+  lcd.println(F("GET IN WITHIN:"));
   delay(1000);
 
   lcd.setCursor(4, 1);
@@ -332,13 +351,13 @@ void counterbeep()
   delay(100);
   lcd.clear();
   lcd.setCursor(2, 0);
-  lcd.println("GET IN WITHIN::");
+  lcd.println(F("GET IN WITHIN::"));
 
   delay(1000);
   delay(40);
   lcd.clear();
   lcd.setCursor(2, 0);
-  lcd.print("RE-LOCKING");
+  lcd.print(F("RE-LOCKING"));
   delay(500);
   lcd.setCursor(12, 0);
   lcd.print(".");
@@ -351,6 +370,6 @@ void counterbeep()
   delay(400);
   lcd.clear();
   lcd.setCursor(4, 0);
-  lcd.print("LOCKED!");
+  lcd.print(F("LOCKED!"));
   delay(440);
 }
