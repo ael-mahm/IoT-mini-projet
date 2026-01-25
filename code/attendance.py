@@ -4,16 +4,21 @@ import requests
 from datetime import datetime
 
 PORT = 'COM21'     
+# Vitesse de communication série
 BAUD = 9600
 FILE_NAME = "attendance.csv"
-BLYNK_TOKEN = "token"
+BLYNK_TOKEN = "m8Oc17J9iFmHFR8PI9VoH3tg19zIzjSB"
 BLYNK_PIN = "V3"
 
+# Cette fonction crée le fichier CSV s'il n'existe pas
+# pour enregistrer les données de présence.
 def init_csv():
     if not os.path.exists(FILE_NAME):
         with open(FILE_NAME, "w", encoding="utf-8") as f:
             f.write("Name,Status,Date,Time\n")
 
+# Cette fonction envoie les données de présence vers Blynk IoT
+# en utilisant une requête HTTP.
 def send_to_blynk(value):
     try:
         url = f"https://blynk.cloud/external/api/update?token={BLYNK_TOKEN}&{BLYNK_PIN}={value}"
@@ -21,6 +26,7 @@ def send_to_blynk(value):
     except:
         print("⚠ Blynk")
 
+# Cette fonction vérifie si l'étudiant est déjà enregistré aujourd'hui.
 def already_marked_today(name, today):
     if not os.path.exists(FILE_NAME):
         return False
@@ -35,6 +41,12 @@ def already_marked_today(name, today):
                 return True
     return False
 
+
+# Cette fonction est le programme principal :
+# - se connecte à Arduino
+# - lit les données série
+# - enregistre la présence dans un fichier CSV
+# - envoie les données vers Blynk
 def main():
     print("Connecting to Arduino...")
 

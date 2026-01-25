@@ -51,6 +51,8 @@ byte colPins[cols] = {6, 7, 8};
 Keypad keypad = Keypad(makeKeymap(key), rowPins, colPins, rows, cols); // creation objet
 bool idleScreenShown = false;
 
+// Cette fonction initialise tous les composants du système :
+// communication série, écran LCD, capteurs, moteur servo et sorties.
 void setup()
 {
   Serial.begin(9600);
@@ -63,9 +65,15 @@ void setup()
   pinMode(ledPin_lum, OUTPUT);
 }
 
+// Cette fonction s'exécute en boucle :
+// - lit la lumière et contrôle la LED
+// - lit la température et contrôle le moteur
+// - lit le clavier
+// - vérifie le code
+// - gère l'accès et la présence
 void loop()
 {
-  // 1. Lecture de la lumière ambiante
+  // 1. Lecture de la lumière
   int valeurLDR = analogRead(ldrPin);
 
   // 2. Logique d'allumage
@@ -151,6 +159,8 @@ void loop()
   }
 }
 
+// Cette fonction cherche le code de l'étudiant dans la liste.
+// Elle retourne l'indice de l'étudiant si trouvé, sinon -1.
 int findStudent(const char *code)
 {
   for (int i = 0; i < studentsCount; i++)
@@ -161,6 +171,7 @@ int findStudent(const char *code)
   return -1;
 }
 
+// Cette fonction vérifie si le code appartient au staff.
 bool isStaff(const char *code)
 {
   for (int i = 0; i < staffCount; i++)
@@ -171,6 +182,8 @@ bool isStaff(const char *code)
   return false;
 }
 
+// Cette fonction affiche le nom de l'étudiant sur l'écran LCD
+// et envoie sa présence vers le PC par le port série.
 void welcomeStudent(const char *name)
 {
   lcd.clear();
@@ -183,9 +196,8 @@ void welcomeStudent(const char *name)
   delay(2000);
 }
 
-/////////////////////////////////////////////////////////////////////////
-
-//------------------ Function 1- OPEN THE DOOR--------------//
+// Cette fonction ouvre la porte avec le moteur servo,
+// attend quelques secondes, puis la referme automatiquement.
 
 void unlockdoor()
 {
@@ -223,8 +235,8 @@ void unlockdoor()
   }
 }
 
-//--------------------Function 2- Wrong code--------------//
-
+// Cette fonction affiche un message d'erreur
+// quand le code entré est incorrect.
 void incorrect()
 {
   delay(500);
@@ -244,7 +256,8 @@ void incorrect()
   lcd.clear();
   displayscreen();
 }
-//-------Function 3 - CLEAR THE SCREEN--------------------/
+
+// Cette fonction efface le contenu de l'écran LCD.
 void clearscreen()
 {
   lcd.setCursor(0, 0);
@@ -253,7 +266,8 @@ void clearscreen()
   lcd.println(" ");
 }
 
-//------------Function 4 - DISPLAY FUNCTION--------------------//
+// Cette fonction affiche le message principal
+// pour demander à l'utilisateur d'entrer le code.
 void displayscreen()
 {
   lcd.setCursor(0, 0);
