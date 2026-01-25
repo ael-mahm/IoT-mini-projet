@@ -99,7 +99,7 @@ void setup()
   Serial.println(F("SYSTEM_READY"));
   displayscreen();
   myservo.attach(9); // Servo motor connection
-  lcd.begin(16, 2);
+  lcd.begin(20, 4);
   dht.begin();
   pinMode(MOTORPIN, OUTPUT);
   pinMode(ledPin_lum, OUTPUT);
