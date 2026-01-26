@@ -231,9 +231,9 @@ void clearMainArea()
 void welcomeStudent(const char *name)
 {
   clearMainArea();
-  lcd.setCursor(3, 0);
+  lcd.setCursor(6, 0);
   lcd.print(F("BIENVENUE"));
-  lcd.setCursor(4, 1);
+  lcd.setCursor(6, 1);
   lcd.print(name);
   Serial.print(name);
   Serial.println(",PRESENT");
@@ -249,11 +249,11 @@ void unlockdoor()
 
   clearMainArea(); 
 
-  lcd.setCursor(2, 0);
+  lcd.setCursor(3, 0);
   lcd.print(F("ACCES AUTORISE"));
 
   lcd.setCursor(3, 1);
-  lcd.print(F("PORTE OUVERTE"));
+  lcd.print(F("PORTE  OUVERTE"));
 
   for (pos = 180; pos >= 0; pos -= 5)
   {
@@ -289,8 +289,8 @@ void incorrect()
   lcd.setCursor(3, 0);
   lcd.print(F("CODE INCORRECT"));
 
-  lcd.setCursor(2, 1);
-  lcd.print(F("Acces refuse"));
+  lcd.setCursor(3, 1);
+  lcd.print(F("Acces   refuse"));
 
   Serial.println(F("CODE INCORRECT"));
 
@@ -317,7 +317,7 @@ void displayscreen()
   lcd.setCursor(0, 0);
   lcd.print("   Systeme d'acces  ");
   lcd.setCursor(0, 1);
-  lcd.print("   Entrez le code");
+  lcd.print("   Entrez  le code   ");
 }
 
 //--------------Function 5 - Count down------------------//
@@ -330,7 +330,7 @@ void counterbeep()
     lcd.setCursor(2, 0);
     lcd.print(F("ENTREZ RAPIDEMENT"));
 
-    lcd.setCursor(8, 1);
+    lcd.setCursor(9, 1);
     lcd.print(i);
 
     delay(700);
@@ -345,7 +345,7 @@ void counterbeep()
 
   clearMainArea();
 
-  lcd.setCursor(6, 1);
+  lcd.setCursor(4, 1);
   lcd.print(F("PORTE FERMEE"));
 
   delay(800);
