@@ -1,6 +1,7 @@
 import serial
 import os
 import requests
+import urllib.parse
 from datetime import datetime
 
 PORT = 'COM21'     
@@ -42,6 +43,29 @@ def already_marked_today(name, today):
     return False
 
 
+
+def send_alert_blynk(temp):
+    try:
+        event_code = "temp_alert"
+        # description = f"Temperature is {temp}C"
+
+        url = (
+            "https://blynk.cloud/external/api/logEvent?"
+            f"token={BLYNK_TOKEN}"
+            f"&code={event_code}"
+        )
+
+        r = requests.get(url, timeout=5)
+        print("Blynk response:", r.text)
+
+    except Exception as e:
+        print("Blynk error:", e)
+
+
+
+
+
+
 # Cette fonction est le programme principal :
 # - se connecte à Arduino
 # - lit les données série
@@ -68,6 +92,10 @@ def main():
 
             if "," not in raw:
                 continue
+
+            if raw.startswith("TEMP"):
+                send_alert_blynk(51)
+
 
             name, status = raw.split(",")
 

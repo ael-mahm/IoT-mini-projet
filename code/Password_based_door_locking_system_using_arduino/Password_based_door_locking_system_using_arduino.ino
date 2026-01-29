@@ -22,7 +22,7 @@ unsigned long lastTempCheck = 0;
 const unsigned long TEMP_INTERVAL = 2000;
 unsigned long lastLightCheck = 0;
 const unsigned long LIGHT_INTERVAL = 1000;
-float temp = 0; 
+float temp = 0;
 float hum = 0;
 
 void handleTemperature()
@@ -32,15 +32,20 @@ void handleTemperature()
     lastTempCheck = millis();
 
     temp = dht.readTemperature();
-    hum  = dht.readHumidity();
+    hum = dht.readHumidity();
 
     if (!isnan(temp))
     {
-      if (temp >= TEMP_HIGH)
+      if (temp >= TEMP_HIGH) {
         digitalWrite(MOTORPIN, HIGH);
+        if (temp >= 50) {
+          Serial.print("TEMP,");
+          Serial.println(temp);
+        }
+      }
       else
         digitalWrite(MOTORPIN, LOW);
-        displayTempHum();
+      displayTempHum();
     }
   }
 }
@@ -70,7 +75,6 @@ void displayTempHum()
   lcd.print(hum, 0);
   lcd.print("%   ");
 }
-
 
 char enteredCode[5];
 int index = 0;
@@ -117,7 +121,6 @@ void setup()
   pinMode(MOTORPIN, OUTPUT);
   pinMode(ledPin_lum, OUTPUT);
   displayscreen();
-  
 }
 
 // Cette fonction s'exécute en boucle :
@@ -167,7 +170,6 @@ void loop()
     if (index == 4)
     {
       enteredCode[4] = '\0';
-      ///////////////////////////////////////////////////////////////
       int studentIndex = findStudent(enteredCode);
 
       if (studentIndex != -1)
@@ -225,7 +227,6 @@ void clearMainArea()
   }
 }
 
-
 // Cette fonction affiche le nom de l'étudiant sur l'écran LCD
 // et envoie sa présence vers le PC par le port série.
 void welcomeStudent(const char *name)
@@ -247,7 +248,7 @@ void unlockdoor()
 {
   delay(500);
 
-  clearMainArea(); 
+  clearMainArea();
 
   lcd.setCursor(3, 0);
   lcd.print(F("ACCES AUTORISE"));
@@ -263,7 +264,7 @@ void unlockdoor()
 
   delay(2000);
 
-  counterbeep(); 
+  counterbeep();
 
   delay(500);
 
@@ -278,7 +279,6 @@ void unlockdoor()
   clearMainArea();
   displayscreen();
 }
-
 
 // Cette fonction affiche un message d'erreur
 // quand le code entré est incorrect.
@@ -300,7 +300,6 @@ void incorrect()
   displayscreen();
 }
 
-
 // Cette fonction efface le contenu de l'écran LCD.
 void clearscreen()
 {
@@ -320,7 +319,6 @@ void displayscreen()
   lcd.print("   Entrez  le code   ");
 }
 
-//--------------Function 5 - Count down------------------//
 void counterbeep()
 {
   for (int i = 5; i >= 1; i--)
@@ -350,4 +348,3 @@ void counterbeep()
 
   delay(800);
 }
-
