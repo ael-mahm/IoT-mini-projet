@@ -8,8 +8,10 @@ PORT = 'COM21'
 # Vitesse de communication série
 BAUD = 9600
 FILE_NAME = "attendance.csv"
-BLYNK_TOKEN = "m8Oc17J9iFmHFR8PI9VoH3tg19zIzjSB"
+BLYNK_TOKEN = ""
 BLYNK_PIN = "V3"
+
+
 
 # Cette fonction crée le fichier CSV s'il n'existe pas
 # pour enregistrer les données de présence.
@@ -72,6 +74,7 @@ def send_alert_blynk(temp):
 # - enregistre la présence dans un fichier CSV
 # - envoie les données vers Blynk
 def main():
+    emergency_active = False
     print("Connecting to Arduino...")
 
     try:
@@ -90,11 +93,37 @@ def main():
         if ser.in_waiting:
             raw = ser.readline().decode(errors="ignore").strip()
 
+            if raw == "NORMAL":
+                emergency_active = False
+                print("✅ SYSTEM BACK TO NORMAL")
+                continue
+
             if "," not in raw:
                 continue
 
-            if raw.startswith("TEMP"):
-                send_alert_blynk(51)
+            if raw.startswith("EMERGENCY"):
+                if not emergency_active:
+                    try:
+                        _, temp = raw.split(",")
+                    except:
+                        temp = "?"
+
+                    emergency_active = True
+                    print("🚨 EMERGENCY MODE ACTIVATED")
+                    send_alert_blynk(temp)
+
+                continue
+
+            # if raw == "NORMAL":
+            #     emergency_active = False
+            #     print("✅ SYSTEM BACK TO NORMAL")
+            #     continue
+
+            if emergency_active:
+                continue
+
+            if "," not in raw:
+                continue
 
 
             name, status = raw.split(",")

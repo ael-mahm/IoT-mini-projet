@@ -25,6 +25,40 @@ const unsigned long LIGHT_INTERVAL = 1000;
 float temp = 0;
 float hum = 0;
 
+bool emergencyMode = false;
+
+void emergencyOpenDoor()
+{
+  for (pos = 180; pos >= 0; pos -= 5)
+  {
+    myservo.write(pos);
+    delay(10);
+  }
+}
+
+void emergencyCloseDoor()
+{
+  for (pos = 0; pos <= 180; pos += 5)
+  {
+    myservo.write(pos);
+    delay(15);
+  }
+}
+
+
+void handleEmergency()
+{
+  lcd.clear();
+  lcd.setCursor(2, 1);
+  lcd.print("SORTIE D'URGENCE");
+
+  Serial.print("EMERGENCY,");
+  Serial.println(temp);
+
+  emergencyOpenDoor();
+}
+
+
 void handleTemperature()
 {
   if (millis() - lastTempCheck >= TEMP_INTERVAL)
@@ -34,17 +68,41 @@ void handleTemperature()
     temp = dht.readTemperature();
     hum = dht.readHumidity();
 
-    if (!isnan(temp))
+    if (isnan(temp)) return;
+
+    if (temp >= 50 && !emergencyMode)
     {
-      if (temp >= TEMP_HIGH) {
+      emergencyMode = true;
+      handleEmergency();
+      return;
+    }
+
+    if (emergencyMode && temp < 30)
+    {
+      emergencyMode = false;
+
+      lcd.clear();
+      lcd.setCursor(2, 1);
+      lcd.print("RETOUR NORMAL");
+
+      delay(1500);
+
+      Serial.println("NORMAL");
+
+      emergencyCloseDoor();
+
+      lcd.clear();
+      displayscreen();
+    }
+
+
+    if (!emergencyMode)
+    {
+      if (temp >= TEMP_HIGH)
         digitalWrite(MOTORPIN, HIGH);
-        if (temp >= 50) {
-          Serial.print("TEMP,");
-          Serial.println(temp);
-        }
-      }
       else
         digitalWrite(MOTORPIN, LOW);
+
       displayTempHum();
     }
   }
@@ -71,7 +129,7 @@ void displayTempHum()
   lcd.print("Temp: ");
   lcd.print(temp, 1);
   lcd.print((char)223);
-  lcd.print("C  Hum: ");
+  lcd.print("C Hum: ");
   lcd.print(hum, 0);
   lcd.print("%   ");
 }
@@ -132,6 +190,7 @@ void setup()
 void loop()
 {
   handleTemperature();
+  if (emergencyMode) return;
   handleLight();
 
   char key = keypad.getKey();
